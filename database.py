@@ -1,6 +1,12 @@
 import sqlite3
 import os
 
+DATABASE_URL = os.environ.get("DATABASE_URL")
+
+if DATABASE_URL:
+    import psycopg2
+    from psycopg2.extras import DictCursor
+
 DEFAULT_RESPONSES = {
     "fees":        "The semester fee is ₹75,000/-. This includes tuition and lab charges for all enrolled courses. Fee can be paid online via the CU portal or at the finance office by DD/cash.",
     "exam":        "End-semester examinations are conducted twice a year in May and December. Mid-semester tests (MSTs) are held in March and September. The exam schedule is published on the CUIMS portal roughly 3 weeks prior to commencement. A minimum of 75% attendance is strictly required.",
@@ -61,59 +67,72 @@ DEFAULT_TRAINING = [
 ]
 
 def get_db():
-    conn = sqlite3.connect('university.db')
-    conn.row_factory = sqlite3.Row
-    return conn
+    if DATABASE_URL:
+        # Handle cases where Render provides postgres:// instead of postgresql://
+        url = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+        conn = psycopg2.connect(url)
+        return conn
+    else:
+        conn = sqlite3.connect('university.db')
+        conn.row_factory = sqlite3.Row
+        return conn
+
+def execute_query(conn, query, params=()):
+    if DATABASE_URL:
+        query = query.replace('?', '%s')
+        query = query.replace('INTEGER PRIMARY KEY AUTOINCREMENT', 'SERIAL PRIMARY KEY')
+        query = query.replace('DATETIME', 'TIMESTAMP')
+        cur = conn.cursor(cursor_factory=DictCursor)
+    else:
+        cur = conn.cursor()
+    cur.execute(query, params)
+    return cur
 
 def init_db():
     conn = get_db()
-    c = conn.cursor()
     # Create Responses table
-    c.execute('''CREATE TABLE IF NOT EXISTS responses (intent TEXT PRIMARY KEY, response TEXT)''')
+    execute_query(conn, '''CREATE TABLE IF NOT EXISTS responses (intent TEXT PRIMARY KEY, response TEXT)''')
     # Create Sentences table
-    c.execute('''CREATE TABLE IF NOT EXISTS training_sentences (id INTEGER PRIMARY KEY AUTOINCREMENT, intent TEXT, sentence TEXT)''')
+    execute_query(conn, '''CREATE TABLE IF NOT EXISTS training_sentences (id INTEGER PRIMARY KEY AUTOINCREMENT, intent TEXT, sentence TEXT)''')
     
     # Create Feedback table
-    c.execute('''CREATE TABLE IF NOT EXISTS feedback (id INTEGER PRIMARY KEY AUTOINCREMENT, intent TEXT, is_helpful INTEGER, query TEXT, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)''')
+    execute_query(conn, '''CREATE TABLE IF NOT EXISTS feedback (id INTEGER PRIMARY KEY AUTOINCREMENT, intent TEXT, is_helpful INTEGER, query TEXT, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)''')
     
     # Create Conversations table
-    c.execute('''CREATE TABLE IF NOT EXISTS conversations (id INTEGER PRIMARY KEY AUTOINCREMENT, session_id TEXT, role TEXT, message TEXT, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)''')
+    execute_query(conn, '''CREATE TABLE IF NOT EXISTS conversations (id INTEGER PRIMARY KEY AUTOINCREMENT, session_id TEXT, role TEXT, message TEXT, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)''')
     
     # Seed responses
-    c.execute("SELECT COUNT(*) FROM responses")
+    c = execute_query(conn, "SELECT COUNT(*) FROM responses")
     if c.fetchone()[0] == 0:
         for intel, res in DEFAULT_RESPONSES.items():
-            c.execute("INSERT INTO responses (intent, response) VALUES (?, ?)", (intel, res))
+            execute_query(conn, "INSERT INTO responses (intent, response) VALUES (?, ?)", (intel, res))
             
     # Seed sentences (flattening multi-intent lists into separate rows for relational DB)
-    c.execute("SELECT COUNT(*) FROM training_sentences")
+    c = execute_query(conn, "SELECT COUNT(*) FROM training_sentences")
     if c.fetchone()[0] == 0:
         for sentence, intents in DEFAULT_TRAINING:
             for intel in intents:
-                c.execute("INSERT INTO training_sentences (sentence, intent) VALUES (?, ?)", (sentence, intel))
+                execute_query(conn, "INSERT INTO training_sentences (sentence, intent) VALUES (?, ?)", (sentence, intel))
                 
     conn.commit()
     conn.close()
 
 def get_response(intent):
     conn = get_db()
-    cur = conn.cursor()
-    cur.execute("SELECT response FROM responses WHERE intent=?", (intent,))
+    cur = execute_query(conn, "SELECT response FROM responses WHERE intent=?", (intent,))
     row = cur.fetchone()
     conn.close()
     return row['response'] if row else None
 
 def log_feedback(intent, is_helpful, query):
     conn = get_db()
-    cur = conn.cursor()
-    cur.execute("INSERT INTO feedback (intent, is_helpful, query) VALUES (?, ?, ?)", (intent, int(is_helpful), query))
+    execute_query(conn, "INSERT INTO feedback (intent, is_helpful, query) VALUES (?, ?, ?)", (intent, int(is_helpful), query))
     conn.commit()
     conn.close()
 
 def get_feedback_stats():
     conn = get_db()
-    cur = conn.cursor()
-    cur.execute("SELECT intent, COUNT(*) as total, SUM(is_helpful) as positive FROM feedback GROUP BY intent")
+    cur = execute_query(conn, "SELECT intent, COUNT(*) as total, SUM(is_helpful) as positive FROM feedback GROUP BY intent")
     stats = []
     for row in cur.fetchall():
         stats.append({'intent': row['intent'], 'total': row['total'], 'positive': row['positive']})
@@ -122,15 +141,23 @@ def get_feedback_stats():
 
 def log_conversation(session_id, role, message):
     conn = get_db()
-    cur = conn.cursor()
-    cur.execute("INSERT INTO conversations (session_id, role, message) VALUES (?, ?, ?)", (session_id, role, message))
+    execute_query(conn, "INSERT INTO conversations (session_id, role, message) VALUES (?, ?, ?)", (session_id, role, message))
+    
+    # Prune old logs to maintain row limit
+    execute_query(conn, """
+        DELETE FROM conversations 
+        WHERE id NOT IN (
+            SELECT id FROM conversations 
+            ORDER BY timestamp DESC 
+            LIMIT 1000
+        )
+    """)
     conn.commit()
     conn.close()
 
 def get_conversation_history(session_id, limit=10):
     conn = get_db()
-    cur = conn.cursor()
-    cur.execute("SELECT role, message FROM conversations WHERE session_id=? ORDER BY timestamp DESC LIMIT ?", (session_id, limit))
+    cur = execute_query(conn, "SELECT role, message FROM conversations WHERE session_id=? ORDER BY timestamp DESC LIMIT ?", (session_id, limit))
     rows = cur.fetchall()
     conn.close()
     return [{"role": r['role'], "message": r['message']} for r in reversed(rows)]

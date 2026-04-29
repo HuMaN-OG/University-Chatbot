@@ -8,3 +8,7 @@ groq
 python-dotenv
 PyJWT
 Flask-Limiter
+psycopg2-binary
+pinecone-client
+pytest
+pytest-flask
