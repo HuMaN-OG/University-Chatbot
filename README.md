@@ -1,6 +1,6 @@
 # Sem-Pro — University Chatbot
 
-> A full-stack AI chatbot for Chandigarh University built with Flask, Sentence-Transformers, and Groq's LLaMA 3.1 — featuring a hybrid RAG architecture, context-aware multi-turn history, admin dashboard, and live web scraper.
+> A full-stack AI chatbot for Chandigarh University built with Flask, Scikit-learn TF-IDF, and Groq's LLaMA 3.1 — featuring a hybrid RAG architecture, context-aware multi-turn history, admin dashboard, and live web scraper.
 
 ![Python](https://img.shields.io/badge/Python-3.11-blue) ![Flask](https://img.shields.io/badge/Flask-2.x-lightgrey) ![Groq](https://img.shields.io/badge/Groq-LLaMA%203.1-orange) ![License](https://img.shields.io/badge/License-MIT-green)
 
@@ -27,7 +27,7 @@ Students can ask the chatbot anything about Chandigarh University — fees, exam
 - **Intent tags** — shows detected intents (e.g. `[fees]` `[exam]`) below each response.
 
 ### Backend & ML
-- **Hybrid RAG architecture** — Sentence-Transformers (`all-MiniLM-L6-v2`) for semantic intent classification, then Groq LLaMA 3.1 for response generation.
+- **Hybrid RAG architecture** — Scikit-learn TF-IDF for semantic intent classification, then Groq LLaMA 3.1 for response generation.
 - **Keyword boosting** — rule-based fallback layer on top of ML predictions for reliability.
 - **Auto-seeding** — `university.db` is created automatically on first boot, no manual setup needed.
 - **Live web scraper** — `scraper.py` crawls the CU website to keep the database updated.
@@ -47,7 +47,7 @@ Students can ask the chatbot anything about Chandigarh University — fees, exam
 | Layer | Technology |
 |---|---|
 | Backend | Python 3.11, Flask, Gunicorn, Flask-Limiter |
-| ML / NLP | Sentence-Transformers (`all-MiniLM-L6-v2`) |
+| ML / NLP | Scikit-learn TF-IDF |
 | AI Generation | Groq API — LLaMA 3.1 8B Instant |
 | Database | SQLite (via `database.py`) |
 | Scraping | BeautifulSoup4, Requests |
@@ -61,7 +61,7 @@ Students can ask the chatbot anything about Chandigarh University — fees, exam
 Sem-Pro/
 ├── app.py                        # Flask server — routes, auth, RAG pipeline
 ├── database.py                   # SQLite handler — init, seed, multi-turn history
-├── nlp_model.py                  # ML core — Sentence-Transformers, semantic search
+├── nlp_model.py                  # ML core — TF-IDF, semantic search
 ├── scraper.py                    # Web scraper — crawls CU website
 ├── index.html                    # Chat frontend
 ├── admin.html                    # Admin dashboard
@@ -106,7 +106,7 @@ Get a free Groq API key at [console.groq.com](https://console.groq.com).
 ```bash
 python app.py
 ```
-The app will be live at `http://localhost:5000`. The database and semantic model are initialized automatically on first boot.
+The app will be live at `http://localhost:5000`. The database and TF-IDF model are initialized automatically on first boot.
 
 **5. Access the admin panel**
 Go to `http://localhost:5000/admin.html` and use your `ADMIN_PASSWORD` to log in.
@@ -131,7 +131,7 @@ Go to `http://localhost:5000/admin.html` and use your `ADMIN_PASSWORD` to log in
    - `JWT_SECRET` — a strong random secret key for authentication
    - `ADMIN_PASSWORD` — a strong password for the admin panel
 
-> **Note:** Render's free tier spins down after 15 minutes of inactivity. The first request after a cold start may take ~30 seconds as it downloads the Sentence-Transformer model. The database is re-seeded automatically on each startup.
+> **Note:** Render's free tier spins down after 15 minutes of inactivity. The first request after a cold start may take ~10 seconds as it initializes the backend. The database is re-seeded automatically on each startup.
 
 ---
 

@@ -1,24 +1,15 @@
-from sentence_transformers import SentenceTransformer, util
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 import os
 import re
 from database import get_db
 
-MODEL_NAME = "all-MiniLM-L6-v2"
-_model = None
-_cached_embeddings = None
+_vectorizer = None
+_cached_tfidf_matrix = None
 _cached_data = None
 
-def load_sentence_model():
-    global _model
-    if _model is None:
-        print("Loading SentenceTransformer model...")
-        # Using a small, fast semantic similarity model
-        _model = SentenceTransformer(MODEL_NAME)
-    return _model
-
 def compute_embeddings():
-    global _cached_embeddings, _cached_data
-    model = load_sentence_model()
+    global _vectorizer, _cached_tfidf_matrix, _cached_data
     
     conn = get_db()
     c = conn.cursor()
@@ -30,12 +21,14 @@ def compute_embeddings():
         return None, None
         
     sentences = [r['sentence'] for r in rows]
-    print(f"Computing semantic embeddings for {len(sentences)} sentences...")
-    embeddings = model.encode(sentences, convert_to_tensor=True)
+    print(f"Computing TF-IDF vectors for {len(sentences)} sentences...")
     
-    _cached_embeddings = embeddings
+    # TF-IDF Vectorizer to convert text to numerical vectors
+    _vectorizer = TfidfVectorizer(stop_words='english')
+    _cached_tfidf_matrix = _vectorizer.fit_transform(sentences)
+    
     _cached_data = rows
-    return embeddings, rows
+    return _cached_tfidf_matrix, rows
 
 def train_and_save():
     """Retrain hook clears the memory cache and re-computes vectors dynamically"""
@@ -66,24 +59,22 @@ def keyword_boost(text):
         boosted.add("general")
     return boosted
 
-def predict_intents(text, threshold=0.45):
-    """Parses text via SentenceTransformer embeddings to compute cosine similarities"""
-    global _cached_embeddings, _cached_data
+def predict_intents(text, threshold=0.2):
+    """Parses text via TF-IDF embeddings to compute cosine similarities"""
+    global _vectorizer, _cached_tfidf_matrix, _cached_data
     
-    model = load_sentence_model()
-    
-    if _cached_embeddings is None or _cached_data is None:
+    if _cached_tfidf_matrix is None or _cached_data is None:
         compute_embeddings()
         
-    if _cached_embeddings is None:
+    if _cached_tfidf_matrix is None:
         return ["fallback"]
         
-    query_emb = model.encode(text, convert_to_tensor=True)
-    cos_scores = util.cos_sim(query_emb, _cached_embeddings)[0]
+    query_vec = _vectorizer.transform([text])
+    cos_scores = cosine_similarity(query_vec, _cached_tfidf_matrix)[0]
     
     ml_detected = set()
     for i, score in enumerate(cos_scores):
-        if score.item() >= threshold:
+        if score >= threshold:
             ml_detected.add(_cached_data[i]['intent'])
             
     # Merge Keyword Boosts
