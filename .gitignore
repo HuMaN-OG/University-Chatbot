@@ -1,0 +1,29 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment variables
+.env
+
+# Database files
+*.db
+*.sqlite
+university.db
+
+# Machine Learning model caches
+*.pkl
+model.pkl
+
+# Virtual Environments
+venv/
+env/
+.venv/
+
+# Report
+*.docx
+*.pdf
+*.pptx
+Semester Project Report.pdf
+Final Project Report.docx
+Chatbot.pptx

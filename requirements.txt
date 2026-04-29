@@ -1,0 +1,11 @@
+flask
+flask-cors
+scikit-learn
+beautifulsoup4
+requests
+gunicorn
+groq
+python-dotenv
+sentence-transformers
+PyJWT
+Flask-Limiter

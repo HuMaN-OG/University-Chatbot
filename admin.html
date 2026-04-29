@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chatbot Secure Admin</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --bg: #050505;
+            --surface: #111111;
+            --primary: #1a6cff;
+            --primary-hover: #0047cc;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border: #333333;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Sora', sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            padding: 2rem;
+            position: relative;
+        }
+
+        /* Ambient glow */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -100px;
+            left: -100px;
+            width: 400px;
+            height: 400px;
+            background: #b45309;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.15;
+            z-index: -1;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, #111111, #000000);
+            border: 1px solid #222;
+            padding: 1.5rem 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: #444;
+        }
+
+        .intent-badge {
+            display: inline-block;
+            background: rgba(26, 108, 255, 0.15);
+            color: #60a5fa;
+            padding: 0.3rem 0.6rem;
+            border-radius: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(26, 108, 255, 0.3);
+        }
+
+        textarea {
+            width: 100%;
+            height: 80px;
+            padding: 0.8rem;
+            border: 1px solid var(--border);
+            border-radius: 0.6rem;
+            font-family: 'Sora', sans-serif;
+            font-size: 0.9rem;
+            resize: none;
+            margin-bottom: 1rem;
+            background: #1a1a1a;
+            color: #fff;
+            transition: border 0.2s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .save-btn {
+            width: 100%;
+            background: #3b82f6;
+            color: #fff;
+            border: none;
+            padding: 0.8rem;
+            border-radius: 0.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .save-btn:hover {
+            background: #2563eb;
+        }
+
+        .retrain-btn {
+            background: #10b981;
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #fff;
+            border-radius: 0.5rem;
+            outline: none;
+            border: 1px solid #059669;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .retrain-btn:hover {
+            background: #059669;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #10b981;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 50;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(-10px);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header" id="dashHeader" style="display: none;">
+        <div>
+            <h1 style="font-size: 1.5rem; color:#fff;">Secure Admin Gateway</h1>
+            <p style="opacity: 0.7; font-size: 0.9rem; margin-top: 0.3rem;">Alter definitions explicitly tied to
+                LogisticRegression bindings</p>
+        </div>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+            <button class="retrain-btn" style="background:#8b5cf6; border-color:#7c3aed;" onclick="triggerScrape()">🌍 Scrape Website</button>
+            <button class="retrain-btn" onclick="triggerRetrain()">⚙️ Retrain AI</button>
+            <a href="index.html"
+                style="color: #fff; text-decoration: none; font-weight: 600; background: #222; padding: 0.6rem 1.2rem; border-radius: 0.5rem; border: 1px solid #333;">&#8592;
+                Back to Chat</a>
+        </div>
+    </div>
+
+    <div class="grid" id="grid">
+        <h3 style="grid-column: 1/-1; text-align: center; margin-top: 5rem; color: #3b82f6;">Authenticating Security
+            Clearance...</h3>
+    </div>
+
+    <div class="toast" id="toast">✅ Saved successfully!</div>
+
+    <script>
+        const API_URL = '/api/responses';
+        const RETRAIN_URL = '/api/admin/retrain';
+
+        // Simplistic auth token approach for the frontend demo
+        let authToken = localStorage.getItem('adminToken');
+
+        async function promptAuth() {
+            if (!authToken) {
+                let pass = prompt("RESTRICTED AREA: Enter Admin Password");
+                if (pass) {
+                    try {
+                        const res = await fetch('/api/admin/login', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ password: pass })
+                        });
+                        if (res.ok) {
+                            const data = await res.json();
+                            authToken = "Bearer " + data.token;
+                            localStorage.setItem('adminToken', authToken);
+                            initDashboard();
+                        } else {
+                            alert("Invalid Credentials!");
+                            document.getElementById('grid').innerHTML = "<h2 style='grid-column: 1/-1; text-align:center; color: #ef4444;'>🚫 401 Unauthorized</h2>";
+                        }
+                    } catch(e) {
+                        alert("Network authentication drop.");
+                    }
+                } else {
+                    document.getElementById('grid').innerHTML = "<h2 style='grid-column: 1/-1; text-align:center; color: #ef4444;'>🚫 401 Unauthorized</h2>";
+                }
+            } else {
+                initDashboard();
+            }
+        }
+
+        async function initDashboard() {
+            document.getElementById('dashHeader').style.display = 'flex';
+            try {
+                const res = await fetch(API_URL, { headers: { 'Authorization': authToken } });
+                if (res.status === 401) {
+                    localStorage.removeItem('adminToken');
+                    authToken = null;
+                    promptAuth();
+                    return;
+                }
+
+                const data = await res.json();
+                const grid = document.getElementById('grid');
+                grid.innerHTML = '';
+
+                // Load Stats Widget
+                try {
+                    const statsRes = await fetch('/api/admin/stats', { headers: { 'Authorization': authToken } });
+                    if(statsRes.ok) {
+                        const stats = await statsRes.json();
+                        let statsHtml = '<div style="grid-column: 1/-1; margin-bottom:1rem; padding:1.5rem; background:linear-gradient(135deg, #161b22, #0d1117); border:1px solid #30363d; border-radius:1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">';
+                        statsHtml += '<h2 style="color:#10b981; margin-bottom:1.2rem; font-size:1.2rem;">📊 Live Feedback Analytics</h2>';
+                        statsHtml += '<div style="display:flex; gap:1.2rem; flex-wrap:wrap;">';
+                        stats.forEach(stat => {
+                            let rate = stat.total > 0 ? Math.round((stat.positive / stat.total) * 100) : 0;
+                            statsHtml += `<div style="background:#0a0a0a; padding:1rem; border-radius:0.5rem; border:1px solid #333; flex:1; min-width:140px; text-align:center;">
+                                <div style="font-size:0.75rem; color:#94a3b8; font-family: monospace; margin-bottom:0.4rem;">[${stat.intent}]</div>
+                                <div style="font-size:1.8rem; font-weight:bold; color:${rate >= 50 ? '#10b981' : '#ef4444'}; text-shadow: 0 0 10px ${rate >= 50 ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'};">${rate}%</div>
+                                <div style="font-size:0.75rem; color:#64748b; margin-top:0.3rem;">${stat.positive}/${stat.total} Helpful</div>
+                            </div>`;
+                        });
+                        if(stats.length === 0) statsHtml += "<p style='color:#64748b; font-size:0.9rem;'>No feedback metrics recorded yet.</p>";
+                        statsHtml += '</div></div>';
+                        grid.innerHTML += statsHtml;
+                    }
+                } catch(e) {}
+
+                data.forEach(item => {
+                    grid.innerHTML += `
+            <div class="card">
+              <div class="intent-badge">[${item.intent}]</div>
+              <textarea id="val-${item.intent}" placeholder="Response template...">${item.response || ''}</textarea>
+              <button class="save-btn" onclick="saveData('${item.intent}')">Save Parameters</button>
+            </div>
+          `;
+                });
+            } catch (e) {
+                document.getElementById('grid').innerHTML = '<p style="color: #ef4444; grid-column:1/-1; text-align:center;">Fatal: Could not connect to internal API layer. Boot app.py.</p>';
+            }
+        }
+
+        async function saveData(intent) {
+            const btn = event.target;
+            const originalText = btn.innerText;
+            btn.innerText = 'Synchronizing...';
+            btn.style.opacity = '0.7';
+
+            const text = document.getElementById(`val-${intent}`).value;
+            try {
+                await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': authToken },
+                    body: JSON.stringify({ intent: intent, response: text })
+                });
+                showToast("✅ Template Indexed.");
+            } catch (e) {
+                alert("Error syncing database: " + e);
+            } finally {
+                btn.innerText = originalText;
+                btn.style.opacity = '1';
+            }
+        }
+
+        async function triggerRetrain() {
+            if (!confirm("Warning: Rebuilding the matrix will reallocate the LogisticRegression model weights utilizing backend SQLite datasets. This may take a few seconds. Proceed?")) return;
+            try {
+                const res = await fetch(RETRAIN_URL, { method: 'POST', headers: { 'Authorization': authToken } });
+                if (res.ok) {
+                    showToast("🤖 Core Re-trained Successfully!");
+                } else {
+                    alert("Fatal Model Error.");
+                }
+            } catch (e) {
+                alert('HTTP Drop: ' + e);
+            }
+        }
+
+        async function triggerScrape() {
+            if (!confirm("Warning: This will perform an active sweep of over 10 endpoints on cuchd.in. It takes 10-20 seconds. Proceed?")) return;
+            const btn = document.querySelector('.retrain-btn[style*="background:#8b5cf6"]');
+            btn.innerText = 'Scraping live info...';
+            try {
+                const res = await fetch('/api/admin/scrape', { method: 'POST', headers: { 'Authorization': authToken } });
+                if (res.ok) {
+                    showToast("🌍 Core DB Synced To Live Web!");
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    alert("Scraping Protocol Failed.");
+                }
+            } catch (e) {
+                alert('HTTP Drop: ' + e);
+            } finally {
+                btn.innerText = '🌍 Scrape Website';
+            }
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            if (msg) t.innerText = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        window.onload = promptAuth;
+    </script>
+</body>
+
+</html>
