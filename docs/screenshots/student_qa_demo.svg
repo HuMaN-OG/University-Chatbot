@@ -1,0 +1,43 @@
+<svg width="800" height="520" viewBox="0 0 800 520" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+  <!-- Window Frame -->
+  <rect width="800" height="520" rx="12" fill="#0f172a" stroke="#334155" stroke-width="2"/>
+  <rect width="800" height="42" rx="12" fill="#1e293b"/>
+  <circle cx="24" cy="21" r="6" fill="#ef4444"/>
+  <circle cx="44" cy="21" r="6" fill="#f59e0b"/>
+  <circle cx="64" cy="21" r="6" fill="#10b981"/>
+  <text x="400" y="26" text-anchor="middle" fill="#94a3b8" font-size="13" font-weight="500">Chandigarh University AI Student Assistant - Live Chat</text>
+
+  <!-- Header Banner -->
+  <rect x="24" y="60" width="752" height="54" rx="8" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+  <text x="44" y="92" fill="#38bdf8" font-size="16" font-weight="600">🎓 CU Student Support AI</text>
+  <rect x="670" y="74" width="90" height="26" rx="13" fill="#065f46"/>
+  <circle cx="684" cy="87" r="4" fill="#34d399"/>
+  <text x="696" y="91" fill="#34d399" font-size="11" font-weight="600">ONLINE</text>
+
+  <!-- Message 1: Student -->
+  <rect x="420" y="134" width="356" height="42" rx="12" fill="#2563eb"/>
+  <text x="436" y="160" fill="#ffffff" font-size="14">What are the library timings and book borrowing limit?</text>
+
+  <!-- Message 1: Bot Response -->
+  <rect x="24" y="192" width="560" height="76" rx="12" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+  <text x="40" y="218" fill="#38bdf8" font-size="12" font-weight="600">AI ASSISTANT (Hybrid NLP + Knowledge Base)</text>
+  <text x="40" y="238" fill="#e2e8f0" font-size="13">The Chandigarh University library is open 24x7 for all students.</text>
+  <text x="40" y="254" fill="#e2e8f0" font-size="13">Sectional libraries timings: 8:00 AM to 8:00 PM. Students can borrow up to 5 books.</text>
+
+  <!-- Message 2: Student Follow-up -->
+  <rect x="470" y="284" width="306" height="42" rx="12" fill="#2563eb"/>
+  <text x="486" y="310" fill="#ffffff" font-size="14">When are the end-semester exams scheduled?</text>
+
+  <!-- Message 2: Bot Response -->
+  <rect x="24" y="342" width="600" height="92" rx="12" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+  <text x="40" y="368" fill="#38bdf8" font-size="12" font-weight="600">AI ASSISTANT (Intent: [exam])</text>
+  <text x="40" y="388" fill="#e2e8f0" font-size="13">End-semester exams are conducted twice a year in May and December.</text>
+  <text x="40" y="404" fill="#e2e8f0" font-size="13">MSTs are held in March and September. Schedules are published on the CUIMS portal</text>
+  <text x="40" y="420" fill="#e2e8f0" font-size="13">roughly 3 weeks prior. Note: A minimum of 75% attendance is strictly required.</text>
+
+  <!-- Chat Input Bar -->
+  <rect x="24" y="454" width="752" height="46" rx="8" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+  <text x="44" y="482" fill="#64748b" font-size="13">Type your question (e.g. fees, hostel, placements, scholarships)...</text>
+  <rect x="710" y="462" width="54" height="30" rx="6" fill="#2563eb"/>
+  <text x="737" y="481" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="600">Send</text>
+</svg>

@@ -41,7 +41,7 @@ def test_admin_login_invalid(client, monkeypatch):
 def test_admin_login_valid(client, monkeypatch):
     # Tests opt in to local test credentials rather than relying on defaults.
     monkeypatch.setattr('app.ADMIN_PASSWORD', 'test-admin-password')
-    monkeypatch.setattr('app.JWT_SECRET', 'test-jwt-secret')
+    monkeypatch.setattr('app.JWT_SECRET', 'test-jwt-secret-at-least-32-bytes-long-for-hmac-sha256')
     rv = client.post('/api/admin/login', json={'password': 'test-admin-password'})
     assert rv.status_code == 200
     data = json.loads(rv.data)

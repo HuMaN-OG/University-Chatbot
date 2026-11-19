@@ -9,11 +9,19 @@ import datetime
 import jwt
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+import secrets
 from dotenv import load_dotenv
 
 load_dotenv()
 app = Flask(__name__)
-CORS(app)
+
+# Configurable CORS origins; defaults to permissive in dev, restricted when CORS_ORIGINS is set
+cors_env = os.environ.get("CORS_ORIGINS", "").strip()
+if cors_env and cors_env != "*":
+    allowed_origins = [o.strip() for o in cors_env.split(",") if o.strip()]
+    CORS(app, origins=allowed_origins)
+else:
+    CORS(app)
 
 # Initialize Rate Limiter
 limiter = Limiter(
@@ -64,8 +72,8 @@ def admin_login():
     if not ADMIN_PASSWORD or not JWT_SECRET:
         return jsonify({'error': 'Admin access is not configured'}), 503
     data = request.get_json() or {}
-    password = data.get("password")
-    if password == ADMIN_PASSWORD:
+    password = data.get("password") or ""
+    if secrets.compare_digest(password, ADMIN_PASSWORD):
         token = jwt.encode({
             'user': 'admin',
             'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24)

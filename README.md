@@ -12,7 +12,11 @@
 
 **My work:** I developed this student-service assistant using Python/Flask, retrieval-based intent matching, SQLite-backed responses, and LLM-assisted answer generation. The repository includes a JWT-protected admin interface, rate limiting and user feedback. These are implementation details—not proof of production-scale traffic or formal institutional approval.
 
-**Screenshots to capture from the running app:** student-facing Q&A; a follow-up conversation; and the admin dashboard **with all credentials, tokens, personal data and sensitive details hidden**. Real screenshots have not yet been added to this repository; upload them to `docs/screenshots/` and link them in this section when available.
+### 📸 Application Interface Previews
+
+| Student Q&A Dialogue | Sanitized Admin Dashboard |
+|---|---|
+| ![Student Q&A Demo](docs/screenshots/student_qa_demo.svg) | ![Admin Dashboard Sanitized](docs/screenshots/admin_dashboard_sanitized.svg) |
 
 **Local run tip:** Follow [Getting Started](#-getting-started). Replace the example admin password and JWT secret in your own `.env`, and never commit that file. Open `http://localhost:5000` and use `/admin.html` for the admin panel.
 
