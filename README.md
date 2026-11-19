@@ -106,12 +106,12 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-Edit `.env` with your actual values:
+Edit `.env` with your actual values. **Both `ADMIN_PASSWORD` and `JWT_SECRET` must be set before admin login will work**; otherwise the login endpoint returns HTTP 503 rather than using unsafe defaults:
 
 ```env
 GROQ_API_KEY=your_groq_api_key_here
 JWT_SECRET=your_strong_random_secret_here
-ADMIN_PASSWORD=your_secure_password_here
+ADMIN_PASSWORD=replace_with_a_unique_strong_password
 ```
 
 ### 5. Run the application
