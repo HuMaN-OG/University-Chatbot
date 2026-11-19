@@ -6,6 +6,18 @@
 
 ---
 
+## Try the demo and see the implementation
+
+**Live application:** [Open the University ChatBot](https://university-chatbot-k8fx.onrender.com). Try a question about library hours, exams or hostel information, then ask a follow-up. Responses depend on the underlying knowledge base and the availability of the deployed service; treat institution-specific information as a demonstration rather than an official university announcement.
+
+**My work:** I developed this student-service assistant using Python/Flask, retrieval-based intent matching, SQLite-backed responses, and LLM-assisted answer generation. The repository includes a JWT-protected admin interface, rate limiting and user feedback. These are implementation details—not proof of production-scale traffic or formal institutional approval.
+
+**Screenshots to capture from the running app:** student-facing Q&A; a follow-up conversation; and the admin dashboard **with all credentials, tokens, personal data and sensitive details hidden**. Real screenshots have not yet been added to this repository; upload them to `docs/screenshots/` and link them in this section when available.
+
+**Local run tip:** Follow [Getting Started](#-getting-started). Replace the example admin password and JWT secret in your own `.env`, and never commit that file. Open `http://localhost:5000` and use `/admin.html` for the admin panel.
+
+---
+
 ## ✨ Features
 
 - 🤖 **Hybrid NLP Engine** — TF-IDF cosine similarity + keyword boosting for intent detection
