@@ -30,10 +30,13 @@ GREETINGS = ["hi", "hello", "hey", "good morning", "good evening", "good afterno
 FAREWELLS  = ["bye", "goodbye", "thanks", "thank you", "ok bye", "see you", "great thanks"]
 
 # ---- AUTHENTICATION CONFIG ---- #
-JWT_SECRET = os.environ.get("JWT_SECRET", "super-secure-chatbot-secret-key")
-ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
+# Require explicit secrets: never enable admin access with public defaults.
+JWT_SECRET = os.environ.get("JWT_SECRET", "").strip()
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "").strip()
 
 def is_auth(req):
+    if not JWT_SECRET or not ADMIN_PASSWORD:
+        return False
     auth = req.headers.get("Authorization", "")
     if not auth.startswith("Bearer "):
         return False
@@ -58,6 +61,8 @@ def admin_page():
 @app.route('/api/admin/login', methods=['POST'])
 @limiter.limit("10 per minute")
 def admin_login():
+    if not ADMIN_PASSWORD or not JWT_SECRET:
+        return jsonify({'error': 'Admin access is not configured'}), 503
     data = request.get_json() or {}
     password = data.get("password")
     if password == ADMIN_PASSWORD:
@@ -214,4 +219,4 @@ def chat():
     return jsonify({'responses': [final_answer], 'intents': list(final_intents)})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=os.environ.get("FLASK_DEBUG", "").lower() in ("1", "true"))
