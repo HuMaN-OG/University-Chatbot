@@ -32,7 +32,9 @@ def test_chat_farewell(client):
     data = json.loads(rv.data)
     assert 'farewell' in data['intents']
 
-def test_admin_login_invalid(client):
+def test_admin_login_invalid(client, monkeypatch):
+    monkeypatch.setattr('app.ADMIN_PASSWORD', 'test-admin-password')
+    monkeypatch.setattr('app.JWT_SECRET', 'test-jwt-secret')
     rv = client.post('/api/admin/login', json={'password': 'wrongpassword'})
     assert rv.status_code == 401
 
